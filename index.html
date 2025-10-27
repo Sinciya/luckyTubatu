@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8"><!--language code set-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"><!--避免跑版-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- 預載入字體 CSS 文件 -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=block" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=UoqMunThenKhung&display=block" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Diphylleia&display=block" as="style">
+
+    <!-- 載入字體 CSS（原本的）-->
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=UoqMunThenKhung&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Diphylleia&display=block" rel="stylesheet">
+    <link rel="preload" href="bgimage.jpeg" as="image">
+    <link rel="preload" href="circle3.png" as="image">
+    <title>Fortune Seeker✨</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .loading-text,
+        .blessing-message,
+        .blessing-name {
+            /* 先設定固定的尺寸，避免字體載入後跳動 */
+            min-height: 2em;
+            min-width: 300px;
+        }
+
+        body {
+            font-family: 'ZCOOL KuaiLe', "UoqMunThenKhung", "Diphylleia", sans-serif;
+            background-image: url("bgimage.jpeg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* 語言切換按鈕 */
+        .language-selector {
+            position: fixed;
+            top: 10px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.4);
+            border: 2px solid transparent;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            color: #2d3436;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .lang-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .lang-btn.active {
+            background: conic-gradient(#66c4f6, #1a92f4, #dbe3f5);
+            color: white;
+            border-color: #74b9ff;
+        }
+
+        /* 載入頁面 */
+        .loading-page {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .loading-text {
+            top: 10%;
+            position: absolute;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            color: #e0f8ff;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px #e0f8ff;
+            animation: twinkle 1.8s ease infinite;
+            animation-delay: 3s;
+        }
+
+        .blessing-name,
+        .link {
+
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            color: #e0f8ff;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px #e0f8ff;
+            animation-delay: 3s;
+            text-decoration: none;
+
+        }
+
+        .blessing-name {
+            padding-bottom: 10vh;
+        }
+
+        .link {
+
+            animation: twinkle 3s ease infinite;
+            animation-delay: 10s;
+        }
+
+        .link:hover {
+            cursor: pointer;
+            color: #ffffff;
+            text-shadow: 2px 2px 5px #ffffff;
+        }
+
+        .song-today {
+            height: auto;
+            padding-top: 10vh;
+            padding-bottom: 1vh;
+        }
+
+        .StarPlace {
+            top: 40vw;
+            position: absolute;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-items: center;
+        }
+
+        .StarRef {
+            opacity: 0;
+            position: absolute;
+            width: 200px;
+            height: 200px;
+
+        }
+
+        .Stars {
+            position: relative;
+            width: 450px;
+            height: 100vh;
+            animation: StarTwinkle 2s ease infinite;
+        }
+
+        #Star1 {
+            position: absolute;
+            top: 30%;
+            left: 60%;
+            animation: FadeIn 1s ease-in-out;
+
+        }
+
+        #Star2 {
+            position: absolute;
+            top: 58%;
+            left: 28%;
+        }
+
+        #Star3 {
+            position: absolute;
+            top: 50%;
+            left: 55%;
+        }
+
+        #Star4 {
+            position: absolute;
+            top: 39%;
+            left: 27%;
+        }
+
+        #Star5 {
+            position: absolute;
+            top: 65%;
+            left: 58%;
+        }
+
+        @keyframes twinkle {
+            40% {
+
+                opacity: 0.2;
+            }
+
+            70% {
+
+                opacity: 1;
+            }
+
+        }
+
+        .star {
+            cursor: pointer;
+            transition: transform 0.8s ease, opacity 0.3s ease;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .rotate-out {
+            transform: rotate(720deg) scale(0);
+            opacity: 0;
+        }
+
+        .visible {
+            opacity: 1;
+            pointer-events: auto;
+            animation: StarTwinkle 2s ease infinite;
+            animation-delay: 0.5s;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @keyframes StarTwinkle {
+            40% {
+
+                opacity: 0.8;
+            }
+
+
+
+            70% {
+
+                opacity: 1;
+            }
+
+        }
+
+        #whiteOverlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background-color: white;
+            opacity: 0;
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            pointer-events: none;
+            transition: transform 0.5s ease-out, opacity 1s ease-out;
+            z-index: 9999;
+            box-shadow: 0 0 100px 50px white;
+        }
+
+        #blackOverlay {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgb(255, 255, 255);
+            opacity: 1;
+            pointer-events: none;
+            transition: opacity 3s ease-out;
+            z-index: 9999;
+        }
+
+
+
+
+
+        /* 結果頁面 */
+        .result-page {
+            border: #f208b4 0px solid;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            max-width: 500px;
+            width: 100%;
+            padding-top: 250px;
+            height: 100vh;
+            /*background: rgba(255, 255, 255, 0.95);*/
+            border-radius: 25px;
+            /*box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);*/
+            /*backdrop-filter: blur(10px);*/
+        }
+
+        .member-name {
+            font-size: 2rem;
+            color: #2d3436;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .blessing-title {
+            font-family: "UoqMunThenKhung", "Diphylleia", sans-serif;
+            font-size: 1rem;
+            color: #636e72;
+            margin-bottom: 20px;
+        }
+
+        .image-placeholder {
+            width: 240px;
+            height: 300px;
+            background: linear-gradient(45deg, #ddd, #f8f9fa);
+            border: 3px dashed #bdc3c7;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            position: relative;
+            overflow: hidden;
+            margin: 0 auto 25px;
+        }
+
+        .image-placeholder img {
+            width: 120%;
+            height: auto;
+            object-fit: cover;
+            display: block;
+            transform: translate(-8.5%, 0);
+        }
+
+        .container {
+            width: auto;
+            top: -200px;
+            position: relative;
+            border: #0822f2 0px solid;
+            display: flex;
+            flex-direction: column;
+            height: 60vh;
+        }
+
+        .container.visible {
+            opacity: 1;
+        }
+
+        .opacity0 {
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .blessing-message {
+
+            width: 100%;
+            text-align: center;
+
+            font-family: "Diphylleia", sans-serif;
+            color: #e0f8ff;
+            font-weight: bold;
+            text-shadow: 2px 2px 5px #69a0cd;
+            font-size: 1.6rem;
+            line-height: 1.3;
+            margin-bottom: 20px;
+            font-weight: 500;
+
+            transition: transform 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 1s ease-out;
+            /*border-radius: 15px;
+            border-left: 4px solid #74b9ff;*/
+        }
+
+        .blessing-message-trans {
+
+            width: 100%;
+            text-align: center;
+
+            font-family: "Diphylleia", "UoqMunThenKhung", sans-serif;
+            color: #e0f8ff;
+            /*font-weight: bold;*/
+            text-shadow: 2px 2px 5px #69a0cd;
+            font-size: 0.8rem;
+            line-height: 1.3;
+            margin-bottom: 5px;
+            font-weight: 500;
+
+            transition: transform 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 1s ease-out;
+            /*border-radius: 15px;
+            border-left: 4px solid #74b9ff;*/
+        }
+
+        .blessing-message.move-up {
+            transform: translateY(-200px) scale(0.8);
+        }
+
+        .save-button {
+            background: conic-gradient(#66c4f6, #1a92f4, #dbe3f5);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            margin-right: 15px;
+        }
+
+        .save-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .retry-button {
+            font-family: "UoqMunThenKhung", "Diphylleia", sans-serif;
+            background: conic-gradient(#1a92f4, #0822f2, #dbe3f5);
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .retry-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
+        }
+
+
+
+
+
+        .result-page.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes FadeIn {
+            from {
+                opacity: 0;
+
+            }
+
+            to {
+                opacity: 1;
+
+            }
+        }
+
+
+        .site-footer {
+
+            bottom: 5%;
+
+            text-align: center;
+            font-size: 0.5rem;
+            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            color: #777;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 語言切換按鈕 -->
+    <div class="language-selector hidden" id="langBtn">
+        <button class="lang-btn active" onclick="changeLanguage('tw')">TW</button>
+        <button class="lang-btn" onclick="changeLanguage('kr')">KR</button>
+        <button class="lang-btn" onclick="changeLanguage('jp')">JP</button>
+        <button class="lang-btn" onclick="changeLanguage('en')">EN</button>
+    </div>
+
+
+    <!-- 載入頁面 -->
+    <div class="loading-page" id="loadingPage">
+        <div class="loading-text">
+            <span id="loadingText" class="hidden">Touch the star to be together.</span>
+        </div>
+        <div class="StarPlace">
+            <div class="StarRef">
+                <img src="StarRef.png" alt="Star" style="width: 200px; height: 300px; ">
+            </div>
+        </div>
+        <div class="Stars hidden" id="AllStars">
+            <img class="star visible" src="circle3.png" id="Star1" style="width: 10%; height: auto; ">
+            <img class="star" src="circle3.png" id="Star2" style="width: 10%; height: auto; ">
+            <img class="star" src="circle3.png" id="Star3" style="width: 10%; height: auto; ">
+            <img class="star" src="circle3.png" id="Star4" style="width: 10%; height: auto; ">
+            <img class="star" src="circle3.png" id="Star5" style="width: 10%; height: auto; ">
+
+        </div>
+    </div>
+    <div id="blackOverlay"></div>
+    <div id="whiteOverlay"></div>
+
+    <!-- 結果頁面 -->
+
+    <div class="result-page hidden" id="resultPage">
+        <div class="blessing-message" id="blessingMessage">
+            Efforts may not be rewarded immediately, <br>they will eventually return in some way.
+        </div>
+
+        <div class="container" id="container">
+            <div class="member-name hidden" id="memberName">Soobin</div>
+            <div class="blessing-title hidden" id="blessingTitle">送來了祝福！</div>
+
+
+            <div class="blessing-message-trans opacity0" id="blessingName1">
+                - SOOBIN -
+            </div>
+            <div class="blessing-message-trans opacity0" id="blessingName2">
+                - SOOBIN -
+            </div>
+            <div class="blessing-name opacity0" id="blessingName">
+                - SOOBIN -
+            </div>
+            <a class="link opacity0" id="link" href="https://youtu.be/IcwHopeT5gY?si=M2At0eYrsLjppR3M"
+                style="font-size: 0.9rem;">
+                Finally, <br>we'll meet together here...
+            </a>
+            <div style="display:flex; justify-content: center; align-items: center; width: 100%;">
+                <iframe class="song-today opacity0" id="songToday" style="border-radius:12px;" src="" width="100%"
+                    height="100" frameBorder="0" allowfullscreen=""
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                    loading="lazy"></iframe>
+
+            </div>
+            <div class="site-footer opacity0" id="siteFooter">
+                <p>Site by @yingssin_ <br>Non-commercial
+                    use |
+                    With ChatGPT Claude.ai support</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        const members = ['Soobin', 'Yeonjun', 'Beomgyu', 'Taehyun', 'Hueningkai'];
+        const blessingNames = ['- SOOBIN -', '- YEONJUN -', '- BEOMGYU -', '- TAEHYUN -', '- HUENINGKAI -'];
+        let currentLanguage = 'en';
+        let currentMember = null;
+        let currentMessage = null;
+
+        // 偵測系統語言並設定初始語言
+        function detectSystemLanguage() {
+            const userLang = navigator.language || navigator.userLanguage;
+
+            if (userLang.startsWith('ko')) {
+                return 'kr';
+            } else if (userLang.startsWith('tw')) {
+                return 'tw';
+            } else {
+                return 'en';
+            }
+        }
+
+        function preloadBackground() {
+            const img = new Image();
+            img.onload = function () {
+                document.body.style.backgroundImage = 'url("bgimage.jpeg")';
+                // 背景載入完成後再執行其他初始化
+            };
+            img.src = 'bgimage.jpeg';
+        }
+
+
+
+
+        // 祝福語翻譯
+
+        const messages = {
+            tw: {
+                'Soobin': [
+                    "努力不一定會馬上獲得回報，但總有一天會以某種方式回到你身邊",
+                    "今天的你已經很努力了，我們繼續充滿活力的生活下去吧",
+                    "所有的傷口都會隨著時間過去而逐漸淡去"
+                ],
+                'Yeonjun': [
+                    "雖然是些微不足道的小事，但一點一滴累積就會變得壯觀",
+                    "那些讓人恐懼並想逃避的，正是我們必須面對的道路",
+                    "往「最好」的方向走，最終你會成為那個獨一無二的人"
+                ],
+                'Beomgyu': [
+                    "痛苦過後，幸福會來臨的",
+                    "鼓起勇氣試一次看看吧",
+                    "為了想做的事，有些東西是需要放棄的"
+                ],
+                'Taehyun': [
+                    "堅韌固然很好，但有時候也需要柔軟才能不被折斷",
+                    "承擔責任，但不要感到負擔",
+                    "即使烏雲密布，雲後的天空依然是湛藍的"
+                ],
+                'Hueningkai': [
+                    "忙碌地生活很好，但心靈的餘裕是絕對必要的",
+                    "彼此的信任感越深，團隊就會變得更加堅固",
+                    "不要成為一個不幸的人"
+                ]
+            },
+            kr: {
+                'Soobin': ["노력의 보상이 지금 당장 보이지 않더라도, 언젠가 어떤 길로든 결국은 돌아올 겁니다", "오늘도 고생 많았어요 힘차게 살아가요", "모든 상처들은 시간이 지나면 무뎌지기 마련인데"],
+                'Yeonjun': ["사소한 거지만 그런 하나하나가 모이면 크니까요", "두렵고 피하고 싶은 대상이 곧 내가 마주해야 할 길이다", "best로 가다보면 유일한 사람이 되어있을거고"],
+                'Beomgyu': ["아픔 뒤에 행복이 오겠구나", "용기를 갖고 한번 부딪혀 보세요", "하고 싶은 걸 하기 위해서는 포기해야 하는 것도 있어요"],
+                'Taehyun': ["굳건함도 좋지만 가끔은 부러지지 않기 위한 유연함을", "책임감을 갖되, 부담감만 내려놔야 돼요", "구름이 껴도 그 뒤의 하늘은 푸른색이죠"],
+                'Hueningkai': ["바쁘게 사는것도 좋지만 마음의 여유도 꼭 필요해요", "서로의 신뢰가 커질수록 팀이 더 단단해지니까요", "불행한 사람이 되지 말자"]
+            },
+            en: {
+                'Soobin': ["Efforts may not be rewarded immediately, <br>they will eventually return in some way.", "You worked hard today. <br>Let's continue to live vibrantly.", "All wounds naturally become less painful."],
+                'Yeonjun': ["They might be minor things, but each one adds up to something big.", "What we fear and want to avoid is precisely the path we must face.", "If you strive for the best, you'll find yourself becoming unique."],
+                'Beomgyu': ["Happiness will come after the pain.", "Take courage and give it a try.", "To do what you want, <br>there are also things you have to give up."],
+                'Taehyun': ["Strength is good, <br>but sometimes need flexibility not to break.", "Have a sense of responsibility, <br>but let go of the burden.", "Even if it's cloudy, <br>the sky behind it is still blue."],
+                'Hueningkai': ["It's good to live busy, <br>but mental space is also essential.", "As mutual trust grows, <br>the team becomes stronger.", "Let's not become an unhappy person."]
+            }
+        };
+
+
+
+
+        const songs = {
+            'Soobin': ["https://open.spotify.com/embed/track/4QfHWIOU5nh4yBdYSnt1AE?utm_source=generator&theme=0&transparent=true"],
+            'Yeonjun': ["https://open.spotify.com/embed/track/5voKDnuTGXBnIZbAqWnb8R?utm_source=generator&theme=0&transparent=true"],
+            'Beomgyu': ["https://open.spotify.com/embed/track/13tz8REkfaAuQrmKQwbToR?utm_source=generator&theme=0&transparent=true"],
+            'Taehyun': ["https://open.spotify.com/embed/track/73TsDyUBDWG2KnCZuLM7KB?utm_source=generator&theme=0&transparent=true"],
+            'Hueningkai': ["https://open.spotify.com/embed/track/7a9q19sVTEAq0SzgUZvbSy?utm_source=generator&theme=0&transparent=true"],
+            'All': ["https://open.spotify.com/embed/track/6bp3UWuLklGIK8VgkRUKkP?utm_source=generator&theme=0&transparent=true", "https://open.spotify.com/embed/track/6IYvOX6K6tbBmj00JRU5Rw?utm_source=generator&theme=0&transparent=true", "https://open.spotify.com/embed/track/1Kv0G4eKjJ4ysGRXlHvQCm?utm_source=generator&theme=0&transparent=true"]
+
+
+
+        };
+
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+
+            // 更新語言按鈕狀態
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // 更新介面文字
+            updateInterfaceText();
+        }
+
+        function RemoveHidden(elementID) {
+            const el = document.getElementById(elementID);
+            if (el) {
+                el.classList.remove('hidden');
+            }
+        }
+
+        function OpacityTo1(elementID) {
+            const el = document.getElementById(elementID);
+            if (el) {
+                el.style.opacity = '1';
+            }
+        }
+
+        function updateInterfaceText() {
+            /*const translation = translations[currentLanguage];
+
+            //document.getElementById('loadingText').textContent = translation.loadingText;
+            document.getElementById('blessingTitle').textContent = translation.blessingTitle;
+            document.getElementById('saveButton').textContent = translation.saveButton;
+            document.getElementById('retryButton').textContent = translation.retryButton;
+            document.getElementById('siteFooter').innerHTML = translation.siteFooter;
+
+            // 如果結果頁面已經顯示且有當前成員，更新祝福語
+            if (!document.getElementById('resultPage').classList.contains('hidden') && currentMember) {
+                const currentMessages = messages[currentLanguage][currentMember];
+                if (currentMessages && currentMessage !== null) {
+                    document.getElementById('blessingMessage').textContent = currentMessages[currentMessage];
+                }
+            }*/
+        }
+
+        function showResult() {
+            const loadingPage = document.getElementById('loadingPage');
+            const resultPage = document.getElementById('resultPage');
+            const langBtn = document.getElementById('langBtn');
+            const blessingName = document.getElementById('blessingName');
+            const blessingMessage = document.getElementById('blessingMessage');
+
+            const songToday = document.getElementById('songToday');
+
+
+            // 隨機選擇成員
+            const randomMemberIndex = Math.floor(Math.random() * members.length);
+            const randomMember = members[randomMemberIndex];
+            const randomName = blessingNames[randomMemberIndex];
+            const randomMessageIndex = Math.floor(Math.random() * messages[currentLanguage][randomMember].length);
+            const randomMessage = messages[currentLanguage][randomMember][randomMessageIndex];
+            const randomMessageKr = messages['kr'][randomMember][randomMessageIndex];
+            const randomMessageTw = messages['tw'][randomMember][randomMessageIndex];
+            const randomSong = songs[randomMember][0];
+            const randomSongA = songs['All'][Math.floor(Math.random() * 3)];
+            const randomSongFinal = Math.random() < 0.5 ? randomSong : randomSongA;
+
+            // 儲存當前抽籤結果
+            currentMember = randomMember;
+            currentMessage = randomMessageIndex;
+
+            // 更新內容 
+            blessingName2.innerHTML = randomMessageKr;
+            blessingName1.innerHTML = randomMessageTw;
+            blessingName.innerHTML = "<br>" + randomName;
+            blessingMessage.innerHTML = randomMessage;
+
+            songToday.src = randomSongFinal;
+
+            // 切換頁面
+            loadingPage.classList.add('hidden');
+            /*langBtn.classList.remove('hidden');
+            langBtn.classList.add('show');*/
+            resultPage.classList.remove('hidden');
+
+            setTimeout(() => {
+                document.getElementById('blessingMessage').classList.add('move-up');
+
+            }, 4000);
+
+            setTimeout(() => {
+                OpacityTo1("songToday");
+                OpacityTo1("blessingName");
+                OpacityTo1("blessingName1");
+                OpacityTo1("blessingName2");
+                OpacityTo1("link");
+                OpacityTo1("siteFooter");
+            }, 5000);
+        }
+
+        function restart() {
+            const loadingPage = document.getElementById('loadingPage');
+            const resultPage = document.getElementById('resultPage');
+            const langBtn = document.getElementById('langBtn');
+
+            // 重置頁面
+            resultPage.classList.remove('show');
+            langBtn.classList.remove('show');
+            langBtn.classList.add('hidden');
+            loadingPage.classList.remove('hidden');
+
+            // 重置當前抽籤結果
+            currentMember = null;
+            currentMessage = null;
+
+            // 重新開始載入
+            setTimeout(() => {
+                showResult();
+            }, 3000);
+        }
+        function animateToCenterAndHide(starElement) {
+            const rect = starElement.getBoundingClientRect(); // 取得目前畫面中的位置
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+
+            const starX = rect.left + rect.width / 2;
+            const starY = rect.top + rect.height / 2;
+
+            const deltaX = centerX - starX;
+            const deltaY = centerY - starY;
+
+            // 加上 transform 動畫
+            starElement.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(720deg) scale(0)`;
+            starElement.style.opacity = '0';
+        }
+
+        // 頁面載入時開始
+
+        function detectArc() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            return userAgent.includes('arc') ||
+                (performance.timing && (performance.timing.loadEventEnd - performance.timing.navigationStart) > 2000);
+        }
+
+        function initializePage() {
+            const overlayB = document.getElementById('blackOverlay');
+            overlayB.style.opacity = '0';
+
+            // 把原本 DOMContentLoaded 裡面的所有程式碼都移到這裡
+            // 包括：
+            // const detectedLang = detectSystemLanguage();
+            // currentLanguage = detectedLang;
+            // ... 等等所有原本的程式碼
+        }
+
+        // 頁面載入時開始
+        if (detectArc()) {
+            // Arc 瀏覽器給予 2 秒緩衝
+            setTimeout(() => initializePage(), 2000);
+        } else {
+            // 正常瀏覽器
+            document.addEventListener('DOMContentLoaded', initializePage);
+        }
+
+        /*window.addEventListener('DOMContentLoaded', function () {
+
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(() => {
+                    initializePage(); // 把現有的初始化程式碼包成這個函數
+                });
+            } else {
+                initializePage(); // 備用方案
+            }
+        });*/changeLanguage
+        function initializePage() {
+            const overlayB = document.getElementById('blackOverlay');
+            overlayB.style.opacity = '0';
+            //showResult();
+            // 偵測並設定系統語言
+            /*setTimeout(() => {
+                
+            }, 3000);*/
+            const detectedLang = detectSystemLanguage();
+            currentLanguage = detectedLang;
+            langBtn.classList.add('hidden');
+
+            // 設定對應的語言按鈕為活躍狀態
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toLowerCase() === detectedLang) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // 更新介面文字
+            setTimeout(() => {
+                RemoveHidden("loadingText");
+            }, 100);
+            setTimeout(() => {
+                RemoveHidden("AllStars");
+            }, 3000);
+
+
+            // 星星動畫
+            const totalStars = 6;
+            let currentIndex = 1;
+
+
+            function showStar(index) {
+                const star = document.getElementById(`Star${index}`);
+                if (star) star.classList.add('visible');
+                else {// 啟動白色遮罩擴散動畫
+                    const overlay = document.getElementById('whiteOverlay');
+                    overlay.style.width = '400vw';  // 確保大過全螢幕
+                    overlay.style.height = '400vw';
+                    overlay.style.opacity = '1';
+                    overlay.style.transform = 'translate(-50%, -50%) scale(1)';
+
+                    setTimeout(() => {
+                        showResult();
+                    }, 2000); // 2秒後縮小
+                    // 淡出後進行頁面切換或顯示 quote
+                    setTimeout(() => {
+                        overlay.style.opacity = '0';
+                        //showResult();
+                        // 這裡可以放轉場後的顯示內容或跳頁
+                        // 例如：window.location.href = "nextpage.html";
+                        // 或出現 quote 畫面
+                    }, 2200);
+                }
+            }
+
+            function hideStar(index) {
+                const star = document.getElementById(`Star${index}`);
+                if (star) {
+                    animateToCenterAndHide(star);
+                    //star.classList.add('rotate-out');
+                    setTimeout(() => {
+                        star.classList.remove('visible');
+                        star.classList.remove('rotate-out');
+                    }, 600); // 跟 CSS 轉場時間一致
+                }
+            }
+
+            for (let i = 1; i <= totalStars; i++) {
+                const star = document.getElementById(`Star${i}`);
+                star.addEventListener('click', () => {
+                    hideStar(i);
+                    setTimeout(() => {
+                        if (i < totalStars) showStar(i + 1);
+                    }, 2000); // 0.6s動畫 + 0.1s延遲
+                });
+            }
+
+        }
+        /*setTimeout(() => {
+            showResult();
+        }, 3000);*/
+
+    </script>
+</body>
+
+</html>
