@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- 預載入字體 CSS 文件 -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=block" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=UoqMunThenKhung&display=block" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Diphylleia&display=block" as="style">
+
+    <!-- 載入字體 CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=UoqMunThenKhung&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Diphylleia&display=block" rel="stylesheet">
+    
+    <title>Fortune Seeker✨</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .loading-text,
+        .blessing-message,
+        .blessing-name {
+            min-height: 2em;
+            min-width: 300px;
+        }
+
+        body {
+            font-family: 'ZCOOL KuaiLe', "UoqMunThenKhung", "Diphylleia", sans-serif;
+            background-image: url("bgimage.jpeg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            touch-action: none; /* 禁止手機滑動頁面 */
+        }
+
+        /* --- 載入頁面 (保持您的原始設定，只加入 Canvas 相關) --- */
+        .loading-page {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            height: 100vh;
+            position: relative; /* 為了定位 Canvas */
+        }
+
+        .loading-text {
+            top: 10%;
+            position: absolute;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            color: #e0f8ff;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px #e0f8ff;
+            animation: twinkle 1.8s ease infinite;
+            animation-delay: 3s;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* --- 核心修正：星星容器與 Canvas --- */
+        
+        /* 恢復原本的寬度設定，確保星星大小與原來一致 */
+        .Stars {
+            position: relative;
+            width: 450px; /* 這是您原本的大小 */
+            height: 100vh;
+        }
+
+        /* Canvas 放在 Stars 容器內 */
+        #lineCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1; /* 在星星圖片下方或上方皆可 */
+            pointer-events: auto; /* 重要修正！必須設為 auto 才能接收滑動事件 */
+        }
+
+        /* 星星樣式調整 */
+        .star {
+            /* cursor: pointer; */
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            pointer-events: none; /* 讓點擊穿透到 Canvas 處理，這是正確的 */
+            opacity: 0.5; /* 初始稍微暗一點，方便看到連線 */
+            position: absolute;
+        }
+
+        /* 選中時的樣式 */
+        .star.active {
+            opacity: 1;
+            transform: scale(1.2);
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.8));
+        }
+
+        /* 您原本的星星位置 */
+        #Star1 { top: 30%; left: 60%; animation: FadeIn 1s ease-in-out; }
+        #Star2 { top: 58%; left: 28%; }
+        #Star3 { top: 50%; left: 55%; }
+        #Star4 { top: 39%; left: 27%; }
+        #Star5 { top: 65%; left: 58%; }
+
+        /* --- 您的原始 CSS (完全沒改) --- */
+        
+        .blessing-name,
+        .link {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            color: #e0f8ff;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px #e0f8ff;
+            animation-delay: 3s;
+            text-decoration: none;
+        }
+
+        .blessing-name { padding-bottom: 10vh; }
+
+        .link { animation: twinkle 3s ease infinite; animation-delay: 10s; }
+        .link:hover { cursor: pointer; color: #ffffff; text-shadow: 2px 2px 5px #ffffff; }
+
+        .song-today { height: auto; padding-top: 10vh; padding-bottom: 1vh; }
+
+        @keyframes twinkle {
+            40% { opacity: 0.2; }
+            70% { opacity: 1; }
+        }
+
+        #whiteOverlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background-color: white;
+            opacity: 0;
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            pointer-events: none;
+            transition: transform 1.5s ease-out, opacity 1s ease-out;
+            z-index: 9999;
+            box-shadow: 0 0 100px 50px white;
+        }
+
+        #blackOverlay {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgb(255, 255, 255);
+            opacity: 1;
+            pointer-events: none;
+            transition: opacity 3s ease-out;
+            z-index: 9999;
+        }
+
+        /* 結果頁面 */
+        .result-page {
+            border: #f208b4 0px solid;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            max-width: 500px;
+            width: 100%;
+            padding-top: 250px;
+            height: 100vh;
+            border-radius: 25px;
+        }
+
+        .container {
+            width: auto;
+            top: -200px;
+            position: relative;
+            border: #0822f2 0px solid;
+            display: flex;
+            flex-direction: column;
+            height: 60vh;
+        }
+
+        .opacity0 { opacity: 0; transition: opacity 1s ease-in-out; }
+
+        .blessing-message {
+            width: 100%;
+            text-align: center;
+            font-family: "Diphylleia", sans-serif;
+            color: #e0f8ff;
+            font-weight: bold;
+            text-shadow: 2px 2px 5px #69a0cd;
+            font-size: 1.6rem;
+            line-height: 1.3;
+            margin-bottom: 20px;
+            font-weight: 500;
+            transition: transform 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 1s ease-out;
+        }
+
+        .blessing-message-trans {
+            width: 100%;
+            text-align: center;
+            font-family: "Diphylleia", "UoqMunThenKhung", sans-serif;
+            color: #e0f8ff;
+            text-shadow: 2px 2px 5px #69a0cd;
+            font-size: 0.8rem;
+            line-height: 1.3;
+            margin-bottom: 5px;
+            font-weight: 500;
+            transition: transform 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 1s ease-out;
+        }
+
+        .blessing-message.move-up { transform: translateY(-200px) scale(0.8); }
+
+        .result-page.show { display: block; animation: slideIn 0.5s ease; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes FadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .site-footer {
+            bottom: 5%;
+            text-align: center;
+            font-size: 0.5rem;
+            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            color: #777;
+            margin-top: 10px;
+        }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+
+<body>
+
+    <!-- 載入頁面 -->
+    <div class="loading-page" id="loadingPage">
+        <div class="loading-text">
+            <!-- 這裡改為連線星星的英文 -->
+            <span id="loadingText" class="hidden">Draw the star to connect.</span>
+        </div>
+        
+        <div class="Stars" id="AllStars">
+            <!-- Canvas 放在這裡，大小會跟隨 .Stars -->
+            <canvas id="lineCanvas"></canvas>
+            
+            <!-- 星星必須是 visible 才能看見 -->
+            <img class="star visible" src="circle3.png" id="Star1" style="width: 10%; height: auto;">
+            <img class="star visible" src="circle3.png" id="Star2" style="width: 10%; height: auto;">
+            <img class="star visible" src="circle3.png" id="Star3" style="width: 10%; height: auto;">
+            <img class="star visible" src="circle3.png" id="Star4" style="width: 10%; height: auto;">
+            <img class="star visible" src="circle3.png" id="Star5" style="width: 10%; height: auto;">
+        </div>
+    </div>
+    
+    <div id="blackOverlay"></div>
+    <div id="whiteOverlay"></div>
+
+    <!-- 結果頁面 -->
+    <div class="result-page hidden" id="resultPage">
+        <div class="blessing-message" id="blessingMessage"></div>
+
+        <div class="container" id="container">
+            <div class="blessing-message-trans opacity0" id="blessingName1"></div>
+            <div class="blessing-message-trans opacity0" id="blessingName2"></div>
+            <div class="blessing-name opacity0" id="blessingName"></div>
+            
+            <a class="link opacity0" id="link" href="https://youtu.be/IcwHopeT5gY?si=M2At0eYrsLjppR3M" style="font-size: 0.9rem;">
+                Finally, <br>we'll meet together here...
+            </a>
+            
+            <div style="display:flex; justify-content: center; align-items: center; width: 100%;">
+                <iframe class="song-today opacity0" id="songToday" style="border-radius:12px;" src="" width="100%" height="100" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            </div>
+            
+            <div class="site-footer opacity0" id="siteFooter">
+                <p>Site by @yingssin_ <br>Non-commercial use | With ChatGPT Claude.ai support</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. 資料區 (完全保留) ---
+        const members = ['Soobin', 'Yeonjun', 'Beomgyu', 'Taehyun', 'Hueningkai'];
+        const blessingNames = ['- SOOBIN -', '- YEONJUN -', '- BEOMGYU -', '- TAEHYUN -', '- HUENINGKAI -'];
+        let currentLanguage = 'en';
+
+        const messages = {
+            tw: {
+                'Soobin': ["努力不一定會馬上獲得回報，但總有一天會以某種方式回到你身邊", "今天的你已經很努力了，我們繼續充滿活力的生活下去吧", "所有的傷口都會隨著時間過去而逐漸淡去"],
+                'Yeonjun': ["雖然是些微不足道的小事，但一點一滴累積就會變得壯觀", "那些讓人恐懼並想逃避的，正是我們必須面對的道路", "往「最好」的方向走，最終你會成為那個獨一無二的人"],
+                'Beomgyu': ["痛苦過後，幸福會來臨的", "鼓起勇氣試一次看看吧", "為了想做的事，有些東西是需要放棄的"],
+                'Taehyun': ["堅韌固然很好，但有時候也需要柔軟才能不被折斷", "承擔責任，但不要感到負擔", "即使烏雲密布，雲後的天空依然是湛藍的"],
+                'Hueningkai': ["忙碌地生活很好，但心靈的餘裕是絕對必要的", "彼此的信任感越深，團隊就會變得更加堅固", "不要成為一個不幸的人"]
+            },
+            kr: {
+                'Soobin': ["노력의 보상이 지금 당장 보이지 않더라도, 언젠가 어떤 길로든 결국은 돌아올 겁니다", "오늘도 고생 많았어요 힘차게 살아가요", "모든 상처들은 시간이 지나면 무뎌지기 마련인데"],
+                'Yeonjun': ["사소한 거지만 그런 하나하나가 모이면 크니까요", "두렵고 피하고 싶은 대상이 곧 내가 마주해야 할 길이다", "best로 가다보면 유일한 사람이 되어있을거고"],
+                'Beomgyu': ["아픔 뒤에 행복이 오겠구나", "용기를 갖고 한번 부딪혀 보세요", "하고 싶은 걸 하기 위해서는 포기해야 하는 것도 있어요"],
+                'Taehyun': ["굳건함도 좋지만 가끔은 부러지지 않기 위한 유연함을", "책임감을 갖되, 부담감만 내려놔야 돼요", "구름이 껴도 그 뒤의 하늘은 푸른색이죠"],
+                'Hueningkai': ["바쁘게 사는것도 좋지만 마음의 여유도 꼭 필요해요", "서로의 신뢰가 커질수록 팀이 더 단단해지니까요", "불행한 사람이 되지 말자"]
+            },
+            en: {
+                'Soobin': ["Efforts may not be rewarded immediately, <br>they will eventually return in some way.", "You worked hard today. <br>Let's continue to live vibrantly.", "All wounds naturally become less painful."],
+                'Yeonjun': ["They might be minor things, but each one adds up to something big.", "What we fear and want to avoid is precisely the path we must face.", "If you strive for the best, you'll find yourself becoming unique."],
+                'Beomgyu': ["Happiness will come after the pain.", "Take courage and give it a try.", "To do what you want, <br>there are also things you have to give up."],
+                'Taehyun': ["Strength is good, <br>but sometimes need flexibility not to break.", "Have a sense of responsibility, <br>but let go of the burden.", "Even if it's cloudy, <br>the sky behind it is still blue."],
+                'Hueningkai': ["It's good to live busy, <br>but mental space is also essential.", "As mutual trust grows, <br>the team becomes stronger.", "Let's not become an unhappy person."]
+            }
+        };
+
+        const songs = {
+            'Soobin': ["https://open.spotify.com/embed/track/4QfHWIOU5nh4yBdYSnt1AE?utm_source=generator&theme=0&transparent=true"],
+            'Yeonjun': ["https://open.spotify.com/embed/track/5voKDnuTGXBnIZbAqWnb8R?utm_source=generator&theme=0&transparent=true"],
+            'Beomgyu': ["https://open.spotify.com/embed/track/13tz8REkfaAuQrmKQwbToR?utm_source=generator&theme=0&transparent=true"],
+            'Taehyun': ["https://open.spotify.com/embed/track/73TsDyUBDWG2KnCZuLM7KB?utm_source=generator&theme=0&transparent=true"],
+            'Hueningkai': ["https://open.spotify.com/embed/track/7a9q19sVTEAq0SzgUZvbSy?utm_source=generator&theme=0&transparent=true"],
+            'All': ["https://open.spotify.com/embed/track/6bp3UWuLklGIK8VgkRUKkP?utm_source=generator&theme=0&transparent=true", "https://open.spotify.com/embed/track/6IYvOX6K6tbBmj00JRU5Rw?utm_source=generator&theme=0&transparent=true", "https://open.spotify.com/embed/track/1Kv0G4eKjJ4ysGRXlHvQCm?utm_source=generator&theme=0&transparent=true"]
+        };
+
+        // --- 2. 輔助功能 ---
+        function detectSystemLanguage() {
+            const userLang = navigator.language || navigator.userLanguage;
+            if (userLang.startsWith('ko')) return 'kr';
+            if (userLang.startsWith('tw') || userLang.startsWith('zh')) return 'tw';
+            return 'en';
+        }
+
+        function OpacityTo1(elementID) {
+            const el = document.getElementById(elementID);
+            if (el) el.style.opacity = '1';
+        }
+        
+        function RemoveHidden(elementID) {
+            const el = document.getElementById(elementID);
+            if (el) el.classList.remove('hidden');
+        }
+
+        // --- 3. 連線遊戲邏輯 ---
+        
+        // 定義正確的五角星畫法順序：
+        // 上(1) -> 左下(2) -> 右上(3) -> 左(4) -> 右下(5) -> 上(1)
+        const CORRECT_SEQUENCE = [1, 2, 3, 4, 5, 1];
+        
+        // 取得 DOM 元素
+        const canvas = document.getElementById('lineCanvas');
+        const ctx = canvas.getContext('2d');
+        const starsContainer = document.getElementById('AllStars');
+        const starElements = [1, 2, 3, 4, 5].map(i => document.getElementById(`Star${i}`));
+        
+        let width, height;
+        let currentSequenceIndex = 0; // 目前連到第幾個步驟
+        let isDragging = false;
+        let currentPos = { x: 0, y: 0 };
+        let isGameWon = false;
+        let pathPoints = []; // 存儲已連線的座標點
+
+        function resize() {
+            // 讓 Canvas 大小跟隨 Stars 容器
+            const rect = starsContainer.getBoundingClientRect();
+            width = rect.width;
+            height = rect.height;
+            
+            // 設定 canvas 解析度
+            canvas.width = width;
+            canvas.height = height;
+            
+            if(!isGameWon) render();
+        }
+
+        function render() {
+            ctx.clearRect(0, 0, width, height);
+
+            if (pathPoints.length === 0 && !isDragging) return;
+
+            ctx.beginPath();
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.lineWidth = 3; 
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = 'rgba(255, 255, 255, 1)';
+
+            // 畫已連線的路徑
+            if (pathPoints.length > 0) {
+                ctx.moveTo(pathPoints[0].x, pathPoints[0].y);
+                for (let i = 1; i < pathPoints.length; i++) {
+                    ctx.lineTo(pathPoints[i].x, pathPoints[i].y);
+                }
+            }
+
+            // 畫拖曳中的線
+            if (isDragging && pathPoints.length > 0) {
+                ctx.lineTo(currentPos.x, currentPos.y);
+            }
+
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+
+        // 取得星星在 Canvas 中的相對座標
+        function getStarCenter(index) {
+            // starElements 索引是 0~4，但 ID 是 Star1~Star5
+            // 傳入 index 是 0~4
+            const el = starElements[index]; 
+            
+            // 這裡要小心，因為 Canvas 現在是在 Stars 容器內，
+            // 所以我們需要的座標是星星相對於 Stars 容器的座標
+            const starRect = el.getBoundingClientRect();
+            const containerRect = starsContainer.getBoundingClientRect();
+            
+            return {
+                x: (starRect.left - containerRect.left) + starRect.width / 2,
+                y: (starRect.top - containerRect.top) + starRect.height / 2
+            };
+        }
+
+        function checkCollision(pos) {
+            // 目標星星 ID (Sequence 中的下一個)
+            const targetStarID = CORRECT_SEQUENCE[currentSequenceIndex];
+            // 找到該 ID 對應的陣列索引 (ID - 1)
+            const targetIndex = targetStarID - 1; 
+            const el = starElements[targetIndex];
+            
+            // 計算距離
+            const center = getStarCenter(targetIndex);
+            const dist = Math.hypot(pos.x - center.x, pos.y - center.y);
+            
+            // 判定選中
+            if (dist < 40) { // 感應範圍
+                // 加入路徑點
+                pathPoints.push(center);
+                
+                // 視覺回饋
+                el.classList.add('active');
+                if (navigator.vibrate) navigator.vibrate(10);
+                
+                // 前往下一個步驟
+                currentSequenceIndex++;
+                
+                // 檢查是否完成 (Sequence 跑完)
+                if (currentSequenceIndex >= CORRECT_SEQUENCE.length) {
+                    finishGame();
+                }
+            }
+        }
+
+        // 取得相對於 Canvas 的座標
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        function onStart(e) {
+            if (isGameWon) return;
+            
+            // 每次開始都要檢查是否從「正確的起點」開始
+            // 如果還沒開始連線 (Index=0)，必須點擊第一顆星
+            if (currentSequenceIndex === 0) {
+                const startPos = getPos(e);
+                const startID = CORRECT_SEQUENCE[0];
+                const center = getStarCenter(startID - 1);
+                const dist = Math.hypot(startPos.x - center.x, startPos.y - center.y);
+                
+                if (dist < 40) {
+                    isDragging = true;
+                    currentPos = startPos;
+                    // 立即選中第一顆
+                    checkCollision(startPos);
+                    render();
+                }
+            } else {
+                // 如果已經連到一半斷掉，允許從最後一個點繼續嗎？
+                // 為了簡單，這裡設定：如果斷掉，就要重來
+                // 或者允許繼續拖曳
+                isDragging = true;
+            }
+        }
+
+        function onMove(e) {
+            if (!isDragging || isGameWon) return;
+            e.preventDefault();
+            currentPos = getPos(e);
+            checkCollision(currentPos);
+            render();
+        }
+
+        function onEnd(e) {
+            if (isGameWon) return;
+            isDragging = false;
+            
+            // 如果手指放開時還沒連完，這裡選擇「重置」
+            // 因為使用者要求嚴格的連線順序，斷掉通常代表失敗重來
+            currentSequenceIndex = 0;
+            pathPoints = [];
+            starElements.forEach(el => el.classList.remove('active'));
+            render();
+        }
+
+        // --- 4. 完成後的動畫 (星星集中 -> 白光 -> 結果) ---
+        function finishGame() {
+            isGameWon = true;
+            isDragging = false;
+            
+            // 1. 清除線條
+            canvas.style.transition = 'opacity 0.5s';
+            canvas.style.opacity = '0';
+            
+            // 2. 星星集中動畫 (依照您原始的 animateToCenterAndHide 概念)
+            // 這裡我們需要計算相對於 Stars 容器的中心點
+            const containerRect = starsContainer.getBoundingClientRect();
+            const centerX = containerRect.width / 2;
+            const centerY = containerRect.height / 2;
+            
+            starElements.forEach((el, i) => {
+                // 取得星星當前位置
+                const starRect = el.getBoundingClientRect();
+                const starX = (starRect.left - containerRect.left) + starRect.width / 2;
+                const starY = (starRect.top - containerRect.top) + starRect.height / 2;
+                
+                const dx = centerX - starX;
+                const dy = centerY - starY;
+                
+                // 直接用 style 覆蓋 transform
+                el.style.transition = 'transform 1s ease-in-out, opacity 1s ease-in-out';
+                el.style.transform = `translate(${dx}px, ${dy}px) rotate(720deg) scale(0)`;
+                el.style.opacity = '0';
+            });
+
+            // 3. 啟動白色光圈 (White Overlay)
+            setTimeout(() => {
+                const overlay = document.getElementById('whiteOverlay');
+                overlay.style.width = '300vw';
+                overlay.style.height = '300vw';
+                overlay.style.opacity = '1';
+                overlay.style.transform = 'translate(-50%, -50%) scale(1)';
+            }, 1000); // 等星星集中動畫差不多結束
+
+            // 4. 顯示結果 (在白光之後)
+            setTimeout(() => {
+                showResult();
+                
+                // 白光淡出
+                const overlay = document.getElementById('whiteOverlay');
+                overlay.style.opacity = '0';
+                
+                // 確保黑幕也消失
+                document.getElementById('blackOverlay').style.opacity = '0';
+            }, 2500);
+        }
+
+        // --- 5. 結果顯示 (您的原始邏輯) ---
+        function showResult() {
+            const loadingPage = document.getElementById('loadingPage');
+            const resultPage = document.getElementById('resultPage');
+            
+            // 隨機抽籤
+            const randomMemberIndex = Math.floor(Math.random() * members.length);
+            const randomMember = members[randomMemberIndex];
+            const randomName = blessingNames[randomMemberIndex];
+            
+            // 先用英文當作基準隨機取一句
+            const randomMessageIndex = Math.floor(Math.random() * messages['en'][randomMember].length);
+            
+            // 強制取用英文版本作為主標題
+            const randomMessageEn = messages['en'][randomMember][randomMessageIndex];
+            // 取用翻譯
+            const randomMessageKr = messages['kr'][randomMember][randomMessageIndex] || "";
+            const randomMessageTw = messages['tw'][randomMember][randomMessageIndex] || "";
+
+            const randomSong = songs[randomMember][0];
+            const randomSongA = songs['All'][Math.floor(Math.random() * 3)];
+            const randomSongFinal = Math.random() < 0.5 ? randomSong : randomSongA;
+
+            // 填入內容
+            // blessingMessage: 顯示英文
+            document.getElementById('blessingMessage').innerHTML = randomMessageEn;
+            // blessingName1: 顯示中文
+            document.getElementById('blessingName1').innerHTML = randomMessageTw;
+            // blessingName2: 顯示韓文
+            document.getElementById('blessingName2').innerHTML = randomMessageKr;
+            
+            document.getElementById('blessingName').innerHTML = "<br>" + randomName;
+            document.getElementById('songToday').src = randomSongFinal;
+
+            // 切換頁面
+            loadingPage.classList.add('hidden');
+            resultPage.classList.remove('hidden');
+
+            // 動畫效果
+            setTimeout(() => {
+                document.getElementById('blessingMessage').classList.add('move-up');
+            }, 4000);
+
+            setTimeout(() => {
+                OpacityTo1("songToday");
+                OpacityTo1("blessingName");
+                OpacityTo1("blessingName1");
+                OpacityTo1("blessingName2");
+                OpacityTo1("link");
+                OpacityTo1("siteFooter");
+            }, 5000);
+        }
+
+        // --- 初始化 ---
+        
+        function initializePage() {
+             // 黑幕淡出
+            const overlayB = document.getElementById('blackOverlay');
+            overlayB.style.opacity = '0';
+            
+            // 顯示星星與文字
+            setTimeout(() => {
+                RemoveHidden("loadingText");
+            }, 100);
+            
+            // 初始設置 Canvas
+            resize();
+        }
+
+        window.addEventListener('resize', resize);
+        
+        // 滑鼠與觸控
+        canvas.addEventListener('mousedown', onStart);
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onEnd);
+        
+        canvas.addEventListener('touchstart', onStart, { passive: false });
+        window.addEventListener('touchmove', onMove, { passive: false });
+        window.addEventListener('touchend', onEnd);
+
+        // 啟動
+        window.addEventListener('DOMContentLoaded', initializePage);
+
+    </script>
+</body>
+</html>
