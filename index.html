@@ -261,7 +261,7 @@
                 <iframe class="song-today opacity0" id="songToday" style="border-radius:12px;" src="" width="100%" height="100" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
             </div>
             <div class="site-footer opacity0" id="siteFooter">
-                <p>Site by @yingssin_ <br>Non-commercial use | With ChatGPT Claude.ai  Gemini support</p>
+                <p>Site by @yingssin_ <br>Non-commercial use | With ChatGPT Claude.ai support</p>
             </div>
         </div>
     </div>
@@ -363,24 +363,63 @@
 
             if (pathPoints.length === 0 && !isDragging) return;
 
+            // 1. 畫起始的細線 (如果有)
+            // 只有當 pathPoints 至少有 2 個點 (虛擬點 + 第一顆星) 時才畫這條特殊的線
+            if (pathPoints.length >= 2) {
+                ctx.beginPath();
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                // 設定細一點、淡一點的樣式
+                ctx.lineWidth = 1; 
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)'; 
+                ctx.shadowBlur = 0; 
+
+                ctx.moveTo(pathPoints[0].x, pathPoints[0].y);
+                ctx.lineTo(pathPoints[1].x, pathPoints[1].y);
+                ctx.stroke();
+            }
+
+            // 2. 畫玩家連線的粗線 (從第一顆星開始往後)
             ctx.beginPath();
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
             ctx.lineWidth = 3; 
+            // 主線透明度 0.4
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
             ctx.shadowBlur = 10;
             ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
 
-            if (pathPoints.length > 0) {
-                ctx.moveTo(pathPoints[0].x, pathPoints[0].y);
-                for (let i = 1; i < pathPoints.length; i++) {
+            let hasMainLine = false;
+
+            // 如果已經連了超過一顆星 (例如 P0, P1, P2...)
+            if (pathPoints.length > 1) {
+                // 移動到第一顆星的位置 (P1)
+                ctx.moveTo(pathPoints[1].x, pathPoints[1].y);
+                
+                // 畫剩下的路徑
+                for (let i = 2; i < pathPoints.length; i++) {
                     ctx.lineTo(pathPoints[i].x, pathPoints[i].y);
                 }
+                hasMainLine = true;
             }
-            if (isDragging && pathPoints.length > 0) {
-                ctx.lineTo(currentPos.x, currentPos.y);
+
+            // 處理拖曳線
+            if (isDragging) {
+                if (pathPoints.length > 0) {
+                    const lastPoint = pathPoints[pathPoints.length - 1];
+                    // 如果還沒 moveTo 過，需要先 moveTo
+                    if (!hasMainLine) {
+                        ctx.moveTo(lastPoint.x, lastPoint.y);
+                    }
+                    ctx.lineTo(currentPos.x, currentPos.y);
+                    hasMainLine = true;
+                }
             }
-            ctx.stroke();
+
+            if (hasMainLine) {
+                ctx.stroke();
+            }
+            
             ctx.shadowBlur = 0;
         }
 
