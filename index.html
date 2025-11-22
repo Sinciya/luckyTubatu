@@ -46,7 +46,7 @@
             touch-action: none; /* 禁止手機滑動頁面 */
         }
 
-        /* --- 載入頁面 (保持您的原始設定，只加入 Canvas 相關) --- */
+        /* --- 載入頁面 --- */
         .loading-page {
             text-align: center;
             display: flex;
@@ -54,7 +54,7 @@
             align-items: center;
             width: 100%;
             height: 100vh;
-            position: relative; /* 為了定位 Canvas */
+            position: relative;
         }
 
         .loading-text {
@@ -71,53 +71,66 @@
             z-index: 10;
         }
 
-        /* --- 核心修正：星星容器與 Canvas --- */
-        
-        /* 恢復原本的寬度設定，確保星星大小與原來一致 */
+        /* --- 星星與 Canvas --- */
         .Stars {
             position: relative;
-            width: 450px; /* 這是您原本的大小 */
+            width: 450px;
             height: 100vh;
         }
 
-        /* Canvas 放在 Stars 容器內 */
         #lineCanvas {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 1; /* 在星星圖片下方或上方皆可 */
-            pointer-events: auto; /* 重要修正！必須設為 auto 才能接收滑動事件 */
+            z-index: 1;
+            pointer-events: auto; /* 接收滑動事件 */
         }
 
-        /* 星星樣式調整 */
         .star {
-            /* cursor: pointer; */
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            pointer-events: none; /* 讓點擊穿透到 Canvas 處理，這是正確的 */
-            opacity: 0.5; /* 初始稍微暗一點，方便看到連線 */
+            transition: transform 0.3s ease, opacity 0.3s ease, filter 0.3s ease;
+            pointer-events: none; /* 保持 none，讓 Canvas 處理邏輯，游標由 JS 控制 */
+            opacity: 0.4; 
             position: absolute;
         }
 
-        /* 選中時的樣式 */
+        /* 1. 當輪到這顆星星時的提示樣式 (呼吸燈效果) */
+        .star.next-target {
+            opacity: 1;
+            animation: pulse-guide 1.5s infinite ease-in-out;
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.6));
+        }
+
+        /* 2. 當游標靠近這顆星星時的反應 (Hover 效果) */
+        .star.hovering {
+            transform: scale(1.3);
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 1));
+        }
+
+        /* 已經連線選中後的樣式 (保持亮起) */
         .star.active {
             opacity: 1;
             transform: scale(1.2);
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.8));
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.9));
+            animation: none; /* 停止呼吸動畫 */
         }
 
-        /* 您原本的星星位置 */
-        #Star1 { top: 30%; left: 60%; animation: FadeIn 1s ease-in-out; }
-        #Star2 { top: 58%; left: 28%; }
-        #Star3 { top: 50%; left: 55%; }
-        #Star4 { top: 39%; left: 27%; }
-        #Star5 { top: 65%; left: 58%; }
+        @keyframes pulse-guide {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8)); }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
 
-        /* --- 您的原始 CSS (完全沒改) --- */
-        
-        .blessing-name,
-        .link {
+        /* 星星位置調整 (保持您前一次要求的等比拉遠) */
+        #Star1 { top: 25%; left: 64%; animation: FadeIn 1s ease-in-out; }
+        #Star2 { top: 60%; left: 24%; }
+        #Star3 { top: 50%; left: 58%; }
+        #Star4 { top: 37%; left: 22%; }
+        #Star5 { top: 70%; left: 61%; }
+
+        /* --- 原始 CSS --- */
+        .blessing-name, .link {
             font-family: 'Courier New', Courier, monospace;
             font-size: 1rem;
             color: #e0f8ff;
@@ -126,18 +139,11 @@
             animation-delay: 3s;
             text-decoration: none;
         }
-
         .blessing-name { padding-bottom: 10vh; }
-
         .link { animation: twinkle 3s ease infinite; animation-delay: 10s; }
         .link:hover { cursor: pointer; color: #ffffff; text-shadow: 2px 2px 5px #ffffff; }
-
         .song-today { height: auto; padding-top: 10vh; padding-bottom: 1vh; }
-
-        @keyframes twinkle {
-            40% { opacity: 0.2; }
-            70% { opacity: 1; }
-        }
+        @keyframes twinkle { 40% { opacity: 0.2; } 70% { opacity: 1; } }
 
         #whiteOverlay {
             position: fixed;
@@ -154,7 +160,6 @@
             z-index: 9999;
             box-shadow: 0 0 100px 50px white;
         }
-
         #blackOverlay {
             position: fixed;
             width: 100vw;
@@ -165,8 +170,6 @@
             transition: opacity 3s ease-out;
             z-index: 9999;
         }
-
-        /* 結果頁面 */
         .result-page {
             border: #f208b4 0px solid;
             position: fixed;
@@ -181,7 +184,6 @@
             height: 100vh;
             border-radius: 25px;
         }
-
         .container {
             width: auto;
             top: -200px;
@@ -191,9 +193,7 @@
             flex-direction: column;
             height: 60vh;
         }
-
         .opacity0 { opacity: 0; transition: opacity 1s ease-in-out; }
-
         .blessing-message {
             width: 100%;
             text-align: center;
@@ -207,7 +207,6 @@
             font-weight: 500;
             transition: transform 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 1s ease-out;
         }
-
         .blessing-message-trans {
             width: 100%;
             text-align: center;
@@ -220,48 +219,24 @@
             font-weight: 500;
             transition: transform 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 1s ease-out;
         }
-
         .blessing-message.move-up { transform: translateY(-200px) scale(0.8); }
-
         .result-page.show { display: block; animation: slideIn 0.5s ease; }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes FadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .site-footer {
-            bottom: 5%;
-            text-align: center;
-            font-size: 0.5rem;
-            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-            color: #777;
-            margin-top: 10px;
-        }
-        
+        @keyframes slideIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes FadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .site-footer { bottom: 5%; text-align: center; font-size: 0.5rem; font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; color: #777; margin-top: 10px; }
         .hidden { display: none !important; }
     </style>
 </head>
 
 <body>
 
-    <!-- 載入頁面 -->
     <div class="loading-page" id="loadingPage">
         <div class="loading-text">
-            <!-- 這裡改為連線星星的英文 -->
             <span id="loadingText" class="hidden">Draw the star to connect.</span>
         </div>
         
         <div class="Stars" id="AllStars">
-            <!-- Canvas 放在這裡，大小會跟隨 .Stars -->
             <canvas id="lineCanvas"></canvas>
-            
-            <!-- 星星必須是 visible 才能看見 -->
             <img class="star visible" src="circle3.png" id="Star1" style="width: 10%; height: auto;">
             <img class="star visible" src="circle3.png" id="Star2" style="width: 10%; height: auto;">
             <img class="star visible" src="circle3.png" id="Star3" style="width: 10%; height: auto;">
@@ -273,23 +248,18 @@
     <div id="blackOverlay"></div>
     <div id="whiteOverlay"></div>
 
-    <!-- 結果頁面 -->
     <div class="result-page hidden" id="resultPage">
         <div class="blessing-message" id="blessingMessage"></div>
-
         <div class="container" id="container">
             <div class="blessing-message-trans opacity0" id="blessingName1"></div>
             <div class="blessing-message-trans opacity0" id="blessingName2"></div>
             <div class="blessing-name opacity0" id="blessingName"></div>
-            
             <a class="link opacity0" id="link" href="https://youtu.be/IcwHopeT5gY?si=M2At0eYrsLjppR3M" style="font-size: 0.9rem;">
                 Finally, <br>we'll meet together here...
             </a>
-            
             <div style="display:flex; justify-content: center; align-items: center; width: 100%;">
                 <iframe class="song-today opacity0" id="songToday" style="border-radius:12px;" src="" width="100%" height="100" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
             </div>
-            
             <div class="site-footer opacity0" id="siteFooter">
                 <p>Site by @yingssin_ <br>Non-commercial use | With ChatGPT Claude.ai support</p>
             </div>
@@ -297,7 +267,6 @@
     </div>
 
     <script>
-        // --- 1. 資料區 (完全保留) ---
         const members = ['Soobin', 'Yeonjun', 'Beomgyu', 'Taehyun', 'Hueningkai'];
         const blessingNames = ['- SOOBIN -', '- YEONJUN -', '- BEOMGYU -', '- TAEHYUN -', '- HUENINGKAI -'];
         let currentLanguage = 'en';
@@ -335,7 +304,6 @@
             'All': ["https://open.spotify.com/embed/track/6bp3UWuLklGIK8VgkRUKkP?utm_source=generator&theme=0&transparent=true", "https://open.spotify.com/embed/track/6IYvOX6K6tbBmj00JRU5Rw?utm_source=generator&theme=0&transparent=true", "https://open.spotify.com/embed/track/1Kv0G4eKjJ4ysGRXlHvQCm?utm_source=generator&theme=0&transparent=true"]
         };
 
-        // --- 2. 輔助功能 ---
         function detectSystemLanguage() {
             const userLang = navigator.language || navigator.userLanguage;
             if (userLang.startsWith('ko')) return 'kr';
@@ -353,36 +321,41 @@
             if (el) el.classList.remove('hidden');
         }
 
-        // --- 3. 連線遊戲邏輯 ---
-        
-        // 定義正確的五角星畫法順序：
-        // 上(1) -> 左下(2) -> 右上(3) -> 左(4) -> 右下(5) -> 上(1)
-        const CORRECT_SEQUENCE = [1, 2, 3, 4, 5, 1];
-        
-        // 取得 DOM 元素
+        // --- 遊戲邏輯 ---
+        // 1. 修改順序：移除最後一個回到1的步驟
+        const CORRECT_SEQUENCE = [1, 2, 3, 4, 5]; 
         const canvas = document.getElementById('lineCanvas');
         const ctx = canvas.getContext('2d');
         const starsContainer = document.getElementById('AllStars');
         const starElements = [1, 2, 3, 4, 5].map(i => document.getElementById(`Star${i}`));
         
         let width, height;
-        let currentSequenceIndex = 0; // 目前連到第幾個步驟
+        let currentSequenceIndex = 0;
         let isDragging = false;
         let currentPos = { x: 0, y: 0 };
         let isGameWon = false;
-        let pathPoints = []; // 存儲已連線的座標點
+        let pathPoints = []; 
 
         function resize() {
-            // 讓 Canvas 大小跟隨 Stars 容器
             const rect = starsContainer.getBoundingClientRect();
             width = rect.width;
             height = rect.height;
-            
-            // 設定 canvas 解析度
             canvas.width = width;
             canvas.height = height;
-            
             if(!isGameWon) render();
+        }
+
+        function updateStarVisuals() {
+            if(isGameWon) return;
+            const targetStarID = CORRECT_SEQUENCE[currentSequenceIndex];
+            
+            starElements.forEach((el, index) => {
+                if ((index + 1) === targetStarID) {
+                    el.classList.add('next-target');
+                } else {
+                    el.classList.remove('next-target');
+                }
+            });
         }
 
         function render() {
@@ -394,75 +367,113 @@
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
             ctx.lineWidth = 3; 
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
             ctx.shadowBlur = 10;
-            ctx.shadowColor = 'rgba(255, 255, 255, 1)';
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
 
-            // 畫已連線的路徑
             if (pathPoints.length > 0) {
                 ctx.moveTo(pathPoints[0].x, pathPoints[0].y);
                 for (let i = 1; i < pathPoints.length; i++) {
                     ctx.lineTo(pathPoints[i].x, pathPoints[i].y);
                 }
             }
-
-            // 畫拖曳中的線
             if (isDragging && pathPoints.length > 0) {
                 ctx.lineTo(currentPos.x, currentPos.y);
             }
-
             ctx.stroke();
             ctx.shadowBlur = 0;
         }
 
-        // 取得星星在 Canvas 中的相對座標
         function getStarCenter(index) {
-            // starElements 索引是 0~4，但 ID 是 Star1~Star5
-            // 傳入 index 是 0~4
             const el = starElements[index]; 
-            
-            // 這裡要小心，因為 Canvas 現在是在 Stars 容器內，
-            // 所以我們需要的座標是星星相對於 Stars 容器的座標
             const starRect = el.getBoundingClientRect();
             const containerRect = starsContainer.getBoundingClientRect();
-            
             return {
                 x: (starRect.left - containerRect.left) + starRect.width / 2,
                 y: (starRect.top - containerRect.top) + starRect.height / 2
             };
         }
 
+        // 2. 計算真正的幾何中心（透過兩條線的交點）
+        // 線段1: 上(Star1) -> 左下(Star2)
+        // 線段2: 左上(Star4) -> 右(Star3)
+        function getTrueCenterIntersection() {
+            const s1 = getStarCenter(0); // Star 1
+            const s2 = getStarCenter(1); // Star 2
+            
+            const s4 = getStarCenter(3); // Star 4
+            const s3 = getStarCenter(2); // Star 3
+            
+            return getIntersection(s1, s2, s4, s3);
+        }
+
+        // 線段交點計算公式
+        function getIntersection(A, B, C, D) {
+            const a1 = B.y - A.y;
+            const b1 = A.x - B.x;
+            const c1 = a1 * A.x + b1 * A.y;
+            
+            const a2 = D.y - C.y;
+            const b2 = C.x - D.x;
+            const c2 = a2 * C.x + b2 * C.y;
+            
+            const determinant = a1 * b2 - a2 * b1;
+            
+            if (determinant === 0) {
+                return { x: 0, y: 0 };
+            } else {
+                return {
+                    x: (b2 * c1 - b1 * c2) / determinant,
+                    y: (a1 * c2 - a2 * c1) / determinant
+                };
+            }
+        }
+
+        // 計算起始的虛擬點 (從交點連向 Star3 的 40% 處)
+        function getPhantomCenter() {
+            const trueCenter = getTrueCenterIntersection();
+            const star3 = getStarCenter(2); // Star 3 (Right)
+            
+            // 向量：從中心指向 Star3 (Right)
+            const vecX = star3.x - trueCenter.x;
+            const vecY = star3.y - trueCenter.y;
+            
+            // 取 40% 的位置 (4:6 靠近中心)
+            return {
+                x: trueCenter.x + vecX * 0.4,
+                y: trueCenter.y + vecY * 0.4
+            };
+        }
+
         function checkCollision(pos) {
-            // 目標星星 ID (Sequence 中的下一個)
             const targetStarID = CORRECT_SEQUENCE[currentSequenceIndex];
-            // 找到該 ID 對應的陣列索引 (ID - 1)
             const targetIndex = targetStarID - 1; 
             const el = starElements[targetIndex];
             
-            // 計算距離
             const center = getStarCenter(targetIndex);
             const dist = Math.hypot(pos.x - center.x, pos.y - center.y);
             
-            // 判定選中
-            if (dist < 40) { // 感應範圍
-                // 加入路徑點
+            if (dist < 40) { 
+                // 如果是第一顆星，先加入計算好的虛擬起點
+                if (currentSequenceIndex === 0) {
+                    pathPoints.push(getPhantomCenter());
+                }
+
                 pathPoints.push(center);
-                
-                // 視覺回饋
                 el.classList.add('active');
+                el.classList.remove('next-target');
+                el.classList.remove('hovering');
                 if (navigator.vibrate) navigator.vibrate(10);
                 
-                // 前往下一個步驟
                 currentSequenceIndex++;
+                updateStarVisuals();
                 
-                // 檢查是否完成 (Sequence 跑完)
                 if (currentSequenceIndex >= CORRECT_SEQUENCE.length) {
                     finishGame();
                 }
             }
         }
 
-        // 取得相對於 Canvas 的座標
         function getPos(e) {
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -476,8 +487,6 @@
         function onStart(e) {
             if (isGameWon) return;
             
-            // 每次開始都要檢查是否從「正確的起點」開始
-            // 如果還沒開始連線 (Index=0)，必須點擊第一顆星
             if (currentSequenceIndex === 0) {
                 const startPos = getPos(e);
                 const startID = CORRECT_SEQUENCE[0];
@@ -487,106 +496,118 @@
                 if (dist < 40) {
                     isDragging = true;
                     currentPos = startPos;
-                    // 立即選中第一顆
                     checkCollision(startPos);
                     render();
                 }
             } else {
-                // 如果已經連到一半斷掉，允許從最後一個點繼續嗎？
-                // 為了簡單，這裡設定：如果斷掉，就要重來
-                // 或者允許繼續拖曳
                 isDragging = true;
             }
         }
 
         function onMove(e) {
-            if (!isDragging || isGameWon) return;
+            if (!isDragging && isGameWon) return;
             e.preventDefault();
             currentPos = getPos(e);
-            checkCollision(currentPos);
-            render();
+            
+            const targetStarID = CORRECT_SEQUENCE[currentSequenceIndex];
+            const targetIndex = targetStarID - 1;
+            const el = starElements[targetIndex];
+            const center = getStarCenter(targetIndex);
+            const dist = Math.hypot(currentPos.x - center.x, currentPos.y - center.y);
+            
+            if (dist < 60) {
+                el.classList.add('hovering');
+                document.body.style.cursor = 'pointer'; 
+            } else {
+                el.classList.remove('hovering');
+                document.body.style.cursor = 'default';
+            }
+
+            if (isDragging) {
+                checkCollision(currentPos);
+                render();
+            }
         }
 
         function onEnd(e) {
             if (isGameWon) return;
             isDragging = false;
-            
-            // 如果手指放開時還沒連完，這裡選擇「重置」
-            // 因為使用者要求嚴格的連線順序，斷掉通常代表失敗重來
             currentSequenceIndex = 0;
             pathPoints = [];
-            starElements.forEach(el => el.classList.remove('active'));
+            starElements.forEach(el => {
+                el.classList.remove('active');
+                el.classList.remove('hovering');
+            });
+            updateStarVisuals();
             render();
+            document.body.style.cursor = 'default'; 
         }
 
-        // --- 4. 完成後的動畫 (星星集中 -> 白光 -> 結果) ---
         function finishGame() {
             isGameWon = true;
             isDragging = false;
-            
-            // 1. 清除線條
+            document.body.style.cursor = 'default'; 
+
             canvas.style.transition = 'opacity 0.5s';
             canvas.style.opacity = '0';
             
-            // 2. 星星集中動畫 (依照您原始的 animateToCenterAndHide 概念)
-            // 這裡我們需要計算相對於 Stars 容器的中心點
+            starElements.forEach(el => {
+                el.classList.remove('next-target');
+                el.classList.remove('hovering');
+            });
+
             const containerRect = starsContainer.getBoundingClientRect();
             const centerX = containerRect.width / 2;
             const centerY = containerRect.height / 2;
             
-            starElements.forEach((el, i) => {
-                // 取得星星當前位置
-                const starRect = el.getBoundingClientRect();
-                const starX = (starRect.left - containerRect.left) + starRect.width / 2;
-                const starY = (starRect.top - containerRect.top) + starRect.height / 2;
-                
-                const dx = centerX - starX;
-                const dy = centerY - starY;
-                
-                // 直接用 style 覆蓋 transform
-                el.style.transition = 'transform 1s ease-in-out, opacity 1s ease-in-out';
-                el.style.transform = `translate(${dx}px, ${dy}px) rotate(720deg) scale(0)`;
-                el.style.opacity = '0';
-            });
+            setTimeout(() => {
+                starElements.forEach((el, i) => {
+                    const starRect = el.getBoundingClientRect();
+                    const starX = (starRect.left - containerRect.left) + starRect.width / 2;
+                    const starY = (starRect.top - containerRect.top) + starRect.height / 2;
+                    
+                    const dx = centerX - starX;
+                    const dy = centerY - starY;
+                    
+                    el.style.transition = 'transform 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+                    el.style.transform = `translate(${dx}px, ${dy}px) rotate(720deg) scale(0.6)`;
+                    el.style.opacity = '1'; 
+                });
+            }, 500);
 
-            // 3. 啟動白色光圈 (White Overlay)
+            setTimeout(() => {
+                starElements.forEach(el => {
+                    el.style.transition = 'opacity 0.5s ease';
+                    el.style.opacity = '0';
+                });
+            }, 1500);
+
             setTimeout(() => {
                 const overlay = document.getElementById('whiteOverlay');
                 overlay.style.width = '300vw';
                 overlay.style.height = '300vw';
                 overlay.style.opacity = '1';
                 overlay.style.transform = 'translate(-50%, -50%) scale(1)';
-            }, 1000); // 等星星集中動畫差不多結束
+            }, 2000); 
 
-            // 4. 顯示結果 (在白光之後)
             setTimeout(() => {
                 showResult();
-                
-                // 白光淡出
                 const overlay = document.getElementById('whiteOverlay');
                 overlay.style.opacity = '0';
-                
-                // 確保黑幕也消失
                 document.getElementById('blackOverlay').style.opacity = '0';
-            }, 2500);
+            }, 3500);
         }
 
-        // --- 5. 結果顯示 (您的原始邏輯) ---
         function showResult() {
             const loadingPage = document.getElementById('loadingPage');
             const resultPage = document.getElementById('resultPage');
             
-            // 隨機抽籤
             const randomMemberIndex = Math.floor(Math.random() * members.length);
             const randomMember = members[randomMemberIndex];
             const randomName = blessingNames[randomMemberIndex];
             
-            // 先用英文當作基準隨機取一句
             const randomMessageIndex = Math.floor(Math.random() * messages['en'][randomMember].length);
-            
-            // 強制取用英文版本作為主標題
             const randomMessageEn = messages['en'][randomMember][randomMessageIndex];
-            // 取用翻譯
             const randomMessageKr = messages['kr'][randomMember][randomMessageIndex] || "";
             const randomMessageTw = messages['tw'][randomMember][randomMessageIndex] || "";
 
@@ -594,22 +615,15 @@
             const randomSongA = songs['All'][Math.floor(Math.random() * 3)];
             const randomSongFinal = Math.random() < 0.5 ? randomSong : randomSongA;
 
-            // 填入內容
-            // blessingMessage: 顯示英文
             document.getElementById('blessingMessage').innerHTML = randomMessageEn;
-            // blessingName1: 顯示中文
             document.getElementById('blessingName1').innerHTML = randomMessageTw;
-            // blessingName2: 顯示韓文
             document.getElementById('blessingName2').innerHTML = randomMessageKr;
-            
             document.getElementById('blessingName').innerHTML = "<br>" + randomName;
             document.getElementById('songToday').src = randomSongFinal;
 
-            // 切換頁面
             loadingPage.classList.add('hidden');
             resultPage.classList.remove('hidden');
 
-            // 動畫效果
             setTimeout(() => {
                 document.getElementById('blessingMessage').classList.add('move-up');
             }, 4000);
@@ -624,25 +638,16 @@
             }, 5000);
         }
 
-        // --- 初始化 ---
-        
         function initializePage() {
-             // 黑幕淡出
             const overlayB = document.getElementById('blackOverlay');
             overlayB.style.opacity = '0';
-            
-            // 顯示星星與文字
-            setTimeout(() => {
-                RemoveHidden("loadingText");
-            }, 100);
-            
-            // 初始設置 Canvas
+            setTimeout(() => { RemoveHidden("loadingText"); }, 100);
             resize();
+            updateStarVisuals(); // 初始化第一顆星的提示
         }
 
         window.addEventListener('resize', resize);
         
-        // 滑鼠與觸控
         canvas.addEventListener('mousedown', onStart);
         window.addEventListener('mousemove', onMove);
         window.addEventListener('mouseup', onEnd);
@@ -651,7 +656,6 @@
         window.addEventListener('touchmove', onMove, { passive: false });
         window.addEventListener('touchend', onEnd);
 
-        // 啟動
         window.addEventListener('DOMContentLoaded', initializePage);
 
     </script>
